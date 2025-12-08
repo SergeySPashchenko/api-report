@@ -27,7 +27,6 @@ final class User extends Authenticatable
     use Notifiable;
     use SoftDeletes;
 
-
     protected $fillable = [
         'name',
         'email',

@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-// use App\Models\Brand;
+use App\Models\Brand;
 use App\Models\PersonalAccessToken;
 // use App\Models\Product;
 use App\Models\User;
+use App\Services\SecureSellerService;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Sanctum\Sanctum;
@@ -19,7 +20,7 @@ final class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(SecureSellerService::class);
     }
 
     /**
@@ -29,7 +30,7 @@ final class AppServiceProvider extends ServiceProvider
     {
         Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
         Relation::enforceMorphMap([
-            //            'brand' => Brand::class,
+            'brand' => Brand::class,
             //            'product' => Product::class,
             'user' => User::class,
         ]);
