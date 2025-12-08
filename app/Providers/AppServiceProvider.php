@@ -6,7 +6,7 @@ namespace App\Providers;
 
 use App\Models\Brand;
 use App\Models\PersonalAccessToken;
-// use App\Models\Product;
+use App\Models\Product;
 use App\Models\User;
 use App\Services\SecureSellerService;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -31,7 +31,7 @@ final class AppServiceProvider extends ServiceProvider
         Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
         Relation::enforceMorphMap([
             'brand' => Brand::class,
-            //            'product' => Product::class,
+            'product' => Product::class,
             'user' => User::class,
         ]);
         //
