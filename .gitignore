@@ -22,3 +22,10 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+/.cursor/
+/.gemini/
+/.junie/
+/boost.json
+/GEMINI.md
+/storage/postman/
+/.agent/
