@@ -9,6 +9,6 @@ declare(strict_types=1);
  * }
  */
 return [
-'api_key' => env('SECURE_SELLER_API_KEY'),
-'base_url' => env('SECURE_SELLER_API_URL'),
+    'api_key' => env('SECURE_SELLER_API_KEY'),
+    'base_url' => env('SECURE_SELLER_API_URL'),
 ];

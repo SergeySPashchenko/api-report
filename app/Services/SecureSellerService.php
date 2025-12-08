@@ -17,8 +17,8 @@ final class SecureSellerService
         private string $apiKey = '',
         private string $baseUrl = '',
     ) {
-        $apiKey =  config('secure_seller.api_key');
-        $baseUrl =  config('secure_seller.base_url');
+        $apiKey = config('secure_seller.api_key');
+        $baseUrl = config('secure_seller.base_url');
         assert(is_string($apiKey));
         assert(is_string($baseUrl));
 

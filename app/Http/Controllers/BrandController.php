@@ -12,6 +12,7 @@ use Exception;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Str;
 
 final class BrandController extends Controller
 {
@@ -66,6 +67,66 @@ final class BrandController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch brands',
+                'error' => $exception->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function syncBrands(): JsonResponse
+    {
+        try {
+            /** @var array<int, array{Brand?: string}> $brands */
+            $brands = $this->secureSellerService->getBrands();
+
+            $synced = 0;
+            $skipped = 0;
+
+            // Extract names and normalize
+            $brandNames = collect($brands)
+                ->pluck('Brand')
+                ->map(function ($name): string {
+                    $name = is_string($name) ? $name : '';
+
+                    return $name === ''
+                        ? 'Empty'
+                        : Str::title($name);
+                })
+                ->unique()
+                ->filter()
+                ->values();
+
+            // Find existing brands
+            $existingBrands = Brand::query()
+                ->whereIn('name', $brandNames)
+                ->pluck('name')
+                ->map(fn ($name): string => is_string($name) ? $name : '')
+                ->filter()
+                ->flip();
+
+            // Filter new brands
+            $newBrands = $brandNames->reject(fn ($name): bool => isset($existingBrands[$name]));
+
+            foreach ($newBrands as $brandName) {
+                // We use create instead of updateOrCreate because we filtered existing ones
+                // This triggers model events (slug generation)
+                Brand::query()->create(['name' => $brandName]);
+                $synced++;
+            }
+
+            // Count "skipped" as existing ones (technically we didn't touch them)
+            $skipped = $existingBrands->count();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Brands synced successfully',
+                'synced' => $synced,
+                'skipped' => $skipped,
+            ]);
+
+        } catch (Exception $exception) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sync failed',
                 'error' => $exception->getMessage(),
             ], 500);
         }
