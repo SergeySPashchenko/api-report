@@ -18,6 +18,8 @@ final class BrandResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
+            'products_count' => $this->whenCounted('products'),
+            'products' => ProductResource::collection($this->whenLoaded('products')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

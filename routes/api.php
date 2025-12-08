@@ -31,23 +31,25 @@ Route::middleware('auth:sanctum')->group(function (): void {
             ->name('brands.index');
         Route::post('/', [BrandController::class, 'store'])
             ->name('brands.store');
-        Route::get('/:slug', [BrandController::class, 'show'])
+        Route::get('/{brand:slug}', [BrandController::class, 'show'])
             ->name('brands.show');
-        Route::put('/:slug', [BrandController::class, 'update'])
+        Route::put('/{brand:slug}', [BrandController::class, 'update'])
             ->name('brands.update');
-        Route::delete('/:slug', [BrandController::class, 'destroy'])
+        Route::delete('/{brand:slug}', [BrandController::class, 'destroy'])
             ->name('brands.destroy');
+        Route::get('/{brand:slug}/products', [BrandController::class, 'brandProducts'])
+            ->name('brands.brand.products');
     });
     Route::prefix('products')->name('products.')->group(function (): void {
-        Route::get('/', [BrandController::class, 'index'])
+        Route::get('/', [ProductController::class, 'index'])
             ->name('products.index');
-        Route::post('/', [BrandController::class, 'store'])
+        Route::post('/', [ProductController::class, 'store'])
             ->name('products.store');
-        Route::get('/:slug', [BrandController::class, 'show'])
+        Route::get('/{product:slug}', [ProductController::class, 'show'])
             ->name('products.show');
-        Route::put('/:slug', [BrandController::class, 'update'])
+        Route::put('/{product:slug}', [ProductController::class, 'update'])
             ->name('products.update');
-        Route::delete('/:slug', [BrandController::class, 'destroy'])
+        Route::delete('/{product:slug}', [ProductController::class, 'destroy'])
             ->name('products.destroy');
     });
 

@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\BrandRequest;
 use App\Http\Resources\BrandResource;
+use App\Http\Resources\ProductResource;
 use App\Models\Brand;
 use App\Services\SecureSellerService;
 use Exception;
@@ -26,7 +27,7 @@ final class BrandController extends Controller
     {
         $this->authorize('viewAny', Brand::class);
 
-        return BrandResource::collection(Brand::all());
+        return BrandResource::collection(Brand::query()->withCount('products')->paginate());
     }
 
     public function store(BrandRequest $request): BrandResource
@@ -39,6 +40,7 @@ final class BrandController extends Controller
     public function show(Brand $brand): BrandResource
     {
         $this->authorize('view', $brand);
+        $brand->loadCount('products');
 
         return new BrandResource($brand);
     }
@@ -130,6 +132,15 @@ final class BrandController extends Controller
                 'error' => $exception->getMessage(),
             ], 500);
         }
+    }
+
+    public function brandProducts(Brand $brand): AnonymousResourceCollection
+    {
+        $this->authorize('view', $brand);
+
+        return ProductResource::collection(
+            $brand->products()->paginate()
+        );
     }
 
     public function destroy(Brand $brand): JsonResponse

@@ -27,7 +27,7 @@ final class ProductController extends Controller
     {
         $this->authorize('viewAny', Product::class);
 
-        return ProductResource::collection(Product::all());
+        return ProductResource::collection(Product::query()->with('brand')->paginate());
     }
 
     public function store(ProductRequest $request): ProductResource
@@ -47,6 +47,7 @@ final class ProductController extends Controller
     public function show(Product $product): ProductResource
     {
         $this->authorize('view', $product);
+        $product->load('brand');
 
         return new ProductResource($product);
     }

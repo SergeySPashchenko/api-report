@@ -23,7 +23,7 @@ final class ProductFactory extends Factory
             'Product' => $this->faker->word(),
             'ProductName' => $this->faker->name(),
             'newSystem' => $this->faker->boolean(),
-            'Visible' => $this->faker->word(),
+            'Visible' => $this->faker->boolean(),
             'flyer' => $this->faker->boolean(),
             'created_at' => Date::now(),
             'updated_at' => Date::now(),
