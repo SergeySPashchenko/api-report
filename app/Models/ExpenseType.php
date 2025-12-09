@@ -19,9 +19,9 @@ final class ExpenseType extends Model
     /** @use HasFactory<ExpenseTypeFactory> **/
     use HasFactory;
 
+    use HasSlug;
     use HasUlids;
     use LogsActivity;
-    use HasSlug;
     use SoftDeletes;
 
     protected $fillable = [

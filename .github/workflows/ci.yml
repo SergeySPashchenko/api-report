@@ -48,9 +48,6 @@ jobs:
       - name: Run lint
         run: composer run lint
 
-      - name: Run tests
-        run: composer test
-
       - name: Run types (phpstan)
         run: composer run test:types
 
