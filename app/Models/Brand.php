@@ -52,6 +52,12 @@ final class Brand extends Model
         return $this->hasMany(Product::class, 'brand_id', 'id');
     }
 
+    /** @return HasMany<Expenses, $this> */
+    public function expenses(): HasMany
+    {
+        return $this->hasMany(Expenses::class, 'brand_id', 'id');
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

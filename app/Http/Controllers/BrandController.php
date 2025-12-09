@@ -10,9 +10,11 @@ use App\Http\Resources\ProductResource;
 use App\Models\Brand;
 use App\Services\SecureSellerService;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Str;
 
 final class BrandController extends Controller
@@ -27,7 +29,13 @@ final class BrandController extends Controller
     {
         $this->authorize('viewAny', Brand::class);
 
-        return BrandResource::collection(Brand::query()->withCount('products')->paginate());
+        $query = Brand::query()
+            ->withCount('products')
+            ->withSum(['expenses as expenses_yesterday' => fn (Builder $q) => $q->whereDate('ExpenseDate', Date::yesterday())], 'Expense')
+            ->withSum(['expenses as expenses_week' => fn (Builder $q) => $q->whereBetween('ExpenseDate', [Date::now()->startOfWeek(), Date::now()->endOfWeek()])], 'Expense')
+            ->withSum(['expenses as expenses_month' => fn (Builder $q) => $q->whereMonth('ExpenseDate', Date::now()->month)->whereYear('ExpenseDate', Date::now()->year)], 'Expense');
+
+        return BrandResource::collection($query->paginate());
     }
 
     public function store(BrandRequest $request): BrandResource
@@ -40,7 +48,11 @@ final class BrandController extends Controller
     public function show(Brand $brand): BrandResource
     {
         $this->authorize('view', $brand);
-        $brand->loadCount('products');
+
+        $brand->loadCount('products')
+            ->loadSum(['expenses as expenses_yesterday' => fn (Builder $q) => $q->whereDate('ExpenseDate', Date::yesterday())], 'Expense')
+            ->loadSum(['expenses as expenses_week' => fn (Builder $q) => $q->whereBetween('ExpenseDate', [Date::now()->startOfWeek(), Date::now()->endOfWeek()])], 'Expense')
+            ->loadSum(['expenses as expenses_month' => fn (Builder $q) => $q->whereMonth('ExpenseDate', Date::now()->month)->whereYear('ExpenseDate', Date::now()->year)], 'Expense');
 
         return new BrandResource($brand);
     }

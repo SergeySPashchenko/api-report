@@ -23,6 +23,9 @@ final class ProductResource extends JsonResource
             'newSystem' => $this->newSystem,
             'Visible' => $this->Visible,
             'flyer' => $this->flyer,
+            'expenses_yesterday' => $this->expenses_yesterday ?? 0,
+            'expenses_week' => $this->expenses_week ?? 0,
+            'expenses_month' => $this->expenses_month ?? 0,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
 

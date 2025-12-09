@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\ExpensesController;
 use App\Http\Controllers\ExpenseTypeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Resources\UserResource;
@@ -30,6 +31,10 @@ Route::middleware('auth:sanctum')->group(function (): void {
             ->name('expense_types.list');
         Route::get('/sync-expense-types', [ExpenseTypeController::class, 'syncExpenseTypes'])
             ->name('expense_types.sync');
+        Route::get('/expenses', [ExpensesController::class, 'getExpenses'])
+            ->name('expenses.list');
+        Route::get('/sync-expenses', [ExpensesController::class, 'syncExpenses'])
+            ->name('expenses.sync');
     });
     Route::prefix('brands')->name('brands.')->group(function (): void {
         Route::get('/', [BrandController::class, 'index'])
@@ -54,6 +59,8 @@ Route::middleware('auth:sanctum')->group(function (): void {
             ->name('products.show');
         Route::put('/{product:slug}', [ProductController::class, 'update'])
             ->name('products.update');
+        Route::get('/{product:slug}/expenses', [ProductController::class, 'productExpenses'])
+            ->name('expenses');
         Route::delete('/{product:slug}', [ProductController::class, 'destroy'])
             ->name('products.destroy');
     });
@@ -68,5 +75,17 @@ Route::middleware('auth:sanctum')->group(function (): void {
             ->name('expense_types.update');
         Route::delete('/{expense_type:slug}', [ExpenseTypeController::class, 'destroy'])
             ->name('expense_types.destroy');
+    });
+    Route::prefix('expenses')->name('expenses.')->group(function (): void {
+        Route::get('/', [ExpensesController::class, 'index'])
+            ->name('expenses.index');
+        Route::post('/', [ExpensesController::class, 'store'])
+            ->name('expenses.store');
+        Route::get('/{expense:slug}', [ExpensesController::class, 'show'])
+            ->name('expenses.show');
+        Route::put('/{expense:slug}', [ExpensesController::class, 'update'])
+            ->name('expenses.update');
+        Route::delete('/{expense:slug}', [ExpensesController::class, 'destroy'])
+            ->name('expenses.destroy');
     });
 });

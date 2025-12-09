@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -67,6 +68,12 @@ final class Product extends Model
             ->useLogName('products')
             ->logFillable()
             ->logOnlyDirty();
+    }
+
+    /** @return HasMany<Expenses, $this> */
+    public function expenses(): HasMany
+    {
+        return $this->hasMany(Expenses::class, 'product_id', 'id');
     }
 
     protected function casts(): array

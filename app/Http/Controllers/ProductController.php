@@ -5,14 +5,17 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProductRequest;
+use App\Http\Resources\ExpensesResource;
 use App\Http\Resources\ProductResource;
 use App\Models\Brand;
 use App\Models\Product;
 use App\Services\SecureSellerService;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Str;
 
 final class ProductController extends Controller
@@ -27,7 +30,13 @@ final class ProductController extends Controller
     {
         $this->authorize('viewAny', Product::class);
 
-        return ProductResource::collection(Product::query()->with('brand')->paginate());
+        $query = Product::query()
+            ->with('brand')
+            ->withSum(['expenses as expenses_yesterday' => fn (Builder $q) => $q->whereDate('ExpenseDate', Date::yesterday())], 'Expense')
+            ->withSum(['expenses as expenses_week' => fn (Builder $q) => $q->whereBetween('ExpenseDate', [Date::now()->startOfWeek(), Date::now()->endOfWeek()])], 'Expense')
+            ->withSum(['expenses as expenses_month' => fn (Builder $q) => $q->whereMonth('ExpenseDate', Date::now()->month)->whereYear('ExpenseDate', Date::now()->year)], 'Expense');
+
+        return ProductResource::collection($query->paginate());
     }
 
     public function store(ProductRequest $request): ProductResource
@@ -47,7 +56,10 @@ final class ProductController extends Controller
     public function show(Product $product): ProductResource
     {
         $this->authorize('view', $product);
-        $product->load('brand');
+        $product->load('brand')
+            ->loadSum(['expenses as expenses_yesterday' => fn (Builder $q) => $q->whereDate('ExpenseDate', Date::yesterday())], 'Expense')
+            ->loadSum(['expenses as expenses_week' => fn (Builder $q) => $q->whereBetween('ExpenseDate', [Date::now()->startOfWeek(), Date::now()->endOfWeek()])], 'Expense')
+            ->loadSum(['expenses as expenses_month' => fn (Builder $q) => $q->whereMonth('ExpenseDate', Date::now()->month)->whereYear('ExpenseDate', Date::now()->year)], 'Expense');
 
         return new ProductResource($product);
     }
@@ -177,6 +189,18 @@ final class ProductController extends Controller
         $product->delete();
 
         return response()->json();
+    }
+
+    public function productExpenses(Product $product): AnonymousResourceCollection
+    {
+        $this->authorize('view', $product);
+
+        $expenses = $product->expenses()->orderByDesc('ExpenseDate')->paginate();
+        $totalSum = $product->expenses()->sum('Expense');
+
+        return ExpensesResource::collection($expenses)->additional([
+            'total_sum' => $totalSum,
+        ]);
     }
 
     private function generateUniqueSlug(string $baseSlug): string

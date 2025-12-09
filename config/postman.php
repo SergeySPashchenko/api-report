@@ -118,7 +118,7 @@ return [
 
         // Default values (use env vars for real values)
         'default' => [
-            'token' => '01kc09fvhqr6bjjgtn1mfm19ag|w0tQplPrDaxANBQAQjr32ZjhBGBALnBNJHGaPMYUcd9744c3',       // For bearer auth
+            'token' => '01kc0f8sz4m0htne73de6snhbb|1mlpIbyqaB8IxqQdqKFDdjbOTFjickXDOmKDqWuAadcbf440',       // For bearer auth
             'username' => 'admin@example.com',      // For basic auth
             'password' => 'admin',              // For basic auth
             'key_name' => 'X-API-KEY',             // For api_key auth
