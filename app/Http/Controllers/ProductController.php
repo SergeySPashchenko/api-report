@@ -33,7 +33,7 @@ final class ProductController extends Controller
         $query = Product::query()
             ->with('brand')
             ->withSum(['expenses as expenses_yesterday' => fn (Builder $q) => $q->whereDate('ExpenseDate', Date::yesterday())], 'Expense')
-            ->withSum(['expenses as expenses_week' => fn (Builder $q) => $q->whereBetween('ExpenseDate', [Date::now()->startOfWeek(), Date::now()->endOfWeek()])], 'Expense')
+            ->withSum(['expenses as expenses_week' => fn (Builder $q) => $q->whereBetween('ExpenseDate', [Date::today()->subDays(7), Date::today()])], 'Expense')
             ->withSum(['expenses as expenses_month' => fn (Builder $q) => $q->whereMonth('ExpenseDate', Date::now()->month)->whereYear('ExpenseDate', Date::now()->year)], 'Expense');
 
         return ProductResource::collection($query->paginate());
@@ -58,7 +58,7 @@ final class ProductController extends Controller
         $this->authorize('view', $product);
         $product->load('brand')
             ->loadSum(['expenses as expenses_yesterday' => fn (Builder $q) => $q->whereDate('ExpenseDate', Date::yesterday())], 'Expense')
-            ->loadSum(['expenses as expenses_week' => fn (Builder $q) => $q->whereBetween('ExpenseDate', [Date::now()->startOfWeek(), Date::now()->endOfWeek()])], 'Expense')
+            ->loadSum(['expenses as expenses_week' => fn (Builder $q) => $q->whereBetween('ExpenseDate', [Date::today()->subDays(7), Date::today()])], 'Expense')
             ->loadSum(['expenses as expenses_month' => fn (Builder $q) => $q->whereMonth('ExpenseDate', Date::now()->month)->whereYear('ExpenseDate', Date::now()->year)], 'Expense');
 
         return new ProductResource($product);

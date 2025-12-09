@@ -28,7 +28,7 @@ final class ExpensesController extends Controller
     {
         $this->authorize('viewAny', Expenses::class);
 
-        return ExpensesResource::collection(Expenses::all());
+        return ExpensesResource::collection(Expenses::query()->with('product')->with('brand')->with('expenseType')->paginate());
     }
 
     public function store(ExpensesRequest $request): ExpensesResource
