@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\ExpenseTypeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
@@ -25,6 +26,10 @@ Route::middleware('auth:sanctum')->group(function (): void {
             ->name('products.list');
         Route::get('/sync-products', [ProductController::class, 'syncProducts'])
             ->name('products.sync');
+        Route::get('/expense-types', [ExpenseTypeController::class, 'getExpenseTypes'])
+            ->name('expense_types.list');
+        Route::get('/sync-expense-types', [ExpenseTypeController::class, 'syncExpenseTypes'])
+            ->name('expense_types.sync');
     });
     Route::prefix('brands')->name('brands.')->group(function (): void {
         Route::get('/', [BrandController::class, 'index'])
@@ -52,5 +57,16 @@ Route::middleware('auth:sanctum')->group(function (): void {
         Route::delete('/{product:slug}', [ProductController::class, 'destroy'])
             ->name('products.destroy');
     });
-
+    Route::prefix('expense-types')->name('expense_types.')->group(function (): void {
+        Route::get('/', [ExpenseTypeController::class, 'index'])
+            ->name('expense_types.index');
+        Route::post('/', [ExpenseTypeController::class, 'store'])
+            ->name('expense_types.store');
+        Route::get('/{expense_type:slug}', [ExpenseTypeController::class, 'show'])
+            ->name('expense_types.show');
+        Route::put('/{expense_type:slug}', [ExpenseTypeController::class, 'update'])
+            ->name('expense_types.update');
+        Route::delete('/{expense_type:slug}', [ExpenseTypeController::class, 'destroy'])
+            ->name('expense_types.destroy');
+    });
 });

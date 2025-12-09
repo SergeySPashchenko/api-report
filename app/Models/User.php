@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -24,6 +26,7 @@ final class User extends Authenticatable
 
     use HasSlug;
     use HasUlids;
+    use LogsActivity;
     use Notifiable;
     use SoftDeletes;
 
@@ -49,6 +52,14 @@ final class User extends Authenticatable
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('users')
+            ->logFillable()
+            ->logOnlyDirty();
     }
 
     /**

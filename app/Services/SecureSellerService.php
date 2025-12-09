@@ -42,6 +42,19 @@ final class SecureSellerService
     /** @return array<int, array<string, mixed>>
      * @throws Exception
      */
+    public function getExpenseTypes(): array
+    {
+        $response = $this->makeRequest('getExpenseTypes');
+
+        /** @var array<int, array<string, mixed>> */
+        $data = $response['data'] ?? [];
+
+        return $data;
+    }
+
+    /** @return array<int, array<string, mixed>>
+     * @throws Exception
+     */
     public function getProducts(): array
     {
         $response = $this->makeRequest('getProducts');

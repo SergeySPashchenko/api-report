@@ -4,47 +4,39 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Database\Factories\ProductFactory;
+use Database\Factories\ExpenseTypeFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
-final class Product extends Model
+final class ExpenseType extends Model
 {
-    /** @use HasFactory<ProductFactory> **/
+    /** @use HasFactory<ExpenseTypeFactory> **/
     use HasFactory;
 
-    use HasSlug;
     use HasUlids;
     use LogsActivity;
+    use HasSlug;
     use SoftDeletes;
 
     protected $fillable = [
-        'ProductID',
-        'brand_id',
-        'slug',
-        'Product',
-        'ProductName',
-        'newSystem',
+        'ExpenseID',
+        'Name',
         'Visible',
-        'flyer',
+        'slug',
     ];
 
-    /**
-     * Get the options for generating the slug.
-     */
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('ProductName')
+            ->generateSlugsFrom('Name')
             ->saveSlugsTo('slug')
-            ->doNotGenerateSlugsOnUpdate();
+            ->allowDuplicateSlugs();
     }
 
     /**
@@ -55,16 +47,10 @@ final class Product extends Model
         return 'slug';
     }
 
-    /** @return BelongsTo<Brand, $this> */
-    public function brand(): BelongsTo
-    {
-        return $this->belongsTo(Brand::class, 'brand_id', 'id');
-    }
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->useLogName('products')
+            ->useLogName('expense_types')
             ->logFillable()
             ->logOnlyDirty();
     }
@@ -72,9 +58,7 @@ final class Product extends Model
     protected function casts(): array
     {
         return [
-            'newSystem' => 'boolean',
             'Visible' => 'boolean',
-            'flyer' => 'boolean',
         ];
     }
 }

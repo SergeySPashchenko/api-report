@@ -123,8 +123,7 @@ final class ProductController extends Controller
                     ->first();
 
                 if ($existingProduct) {
-                    // Update існуючого без зміни slug
-                    $existingProduct->update([
+                    $existingProduct->fill([
                         'brand_id' => $brandId,
                         'Product' => $productData['Product'],
                         'ProductName' => $productData['ProductName'],
@@ -132,7 +131,11 @@ final class ProductController extends Controller
                         'Visible' => $productData['Visible'],
                         'flyer' => $productData['flyer'],
                     ]);
-                    $updated++;
+
+                    if ($existingProduct->isDirty()) {
+                        $existingProduct->save();
+                        $updated++;
+                    }
                 } else {
                     // Створюємо новий з унікальним slug
                     $baseSlug = Str::slug(is_string($productData['ProductName']) ? $productData['ProductName'] : '');

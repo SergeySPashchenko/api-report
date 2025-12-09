@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Models\Brand;
+use App\Models\ExpenseType;
 use App\Models\PersonalAccessToken;
 use App\Models\Product;
 use App\Models\User;
@@ -33,6 +34,7 @@ final class AppServiceProvider extends ServiceProvider
             'brand' => Brand::class,
             'product' => Product::class,
             'user' => User::class,
+            'expense_type' => ExpenseType::class,
         ]);
         //
     }

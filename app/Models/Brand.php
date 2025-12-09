@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -20,6 +22,7 @@ final class Brand extends Model
 
     use HasSlug;
     use HasUlids;
+    use LogsActivity;
     use SoftDeletes;
 
     protected $fillable = [
@@ -47,5 +50,13 @@ final class Brand extends Model
     public function products(): HasMany
     {
         return $this->hasMany(Product::class, 'brand_id', 'id');
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('brands')
+            ->logFillable()
+            ->logOnlyDirty();
     }
 }

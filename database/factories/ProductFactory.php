@@ -21,6 +21,7 @@ final class ProductFactory extends Factory
         return [
             'ProductID' => $this->faker->randomNumber(),
             'Product' => $this->faker->word(),
+            'slug' => $this->faker->slug(),
             'ProductName' => $this->faker->name(),
             'newSystem' => $this->faker->boolean(),
             'Visible' => $this->faker->boolean(),
