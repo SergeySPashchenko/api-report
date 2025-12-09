@@ -78,6 +78,29 @@ final class SecureSellerService
     /** @return array<int, array<string, mixed>>
      * @throws Exception
      */
+    public function getOrders(?string $date_start = null, ?string $date_end = null): array
+    {
+        $data = [];
+
+        if ($date_start) {
+            $data['date_start'] = $date_start;
+        }
+
+        if ($date_end) {
+            $data['date_end'] = $date_end;
+        }
+
+        $response = $this->makeRequest('getOrders', $data);
+
+        /** @var array<int, array<string, mixed>> */
+        $data = $response['data'] ?? [];
+
+        return $data;
+    }
+
+    /** @return array<int, array<string, mixed>>
+     * @throws Exception
+     */
     public function getProducts(): array
     {
         $response = $this->makeRequest('getProducts');
