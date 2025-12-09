@@ -14,10 +14,10 @@ return new class extends Migration
             $table->ulid('id')->primary();
             $table->foreignUuid('brand_id')->nullable()->constrained('brands');
             $table->foreignUuid('product_id')->nullable()->constrained('products');
-            $table->integer('id')->index();
+            $table->integer('external_id')->index();
             $table->string('Agent')->index();
-            $table->timestamp('Created');
-            $table->date('OrderDate');
+            $table->string('Created'); // Unix timestamp as string
+            $table->string('OrderDate'); // YYYYMMDD format
             $table->string('OrderNum')->index();
             $table->string('OrderN')->index();
             $table->float('ProductTotal');

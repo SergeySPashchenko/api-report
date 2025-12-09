@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\ExpensesController;
 use App\Http\Controllers\ExpenseTypeController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
@@ -35,6 +36,10 @@ Route::middleware('auth:sanctum')->group(function (): void {
             ->name('expenses.list');
         Route::get('/sync-expenses', [ExpensesController::class, 'syncExpenses'])
             ->name('expenses.sync');
+        Route::get('/orders', [OrderController::class, 'getOrders'])
+            ->name('orders.list');
+        Route::get('/sync-orders', [OrderController::class, 'syncOrders'])
+            ->name('orders.sync');
     });
     Route::prefix('brands')->name('brands.')->group(function (): void {
         Route::get('/', [BrandController::class, 'index'])

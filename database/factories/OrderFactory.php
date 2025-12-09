@@ -20,6 +20,7 @@ final class OrderFactory extends Factory
     public function definition(): array
     {
         return [
+            'external_id' => $this->faker->randomNumber(5, false),
             'Agent' => $this->faker->word(),
             'Created' => Date::now(),
             'OrderDate' => Date::now(),

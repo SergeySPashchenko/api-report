@@ -22,6 +22,7 @@ final class Order extends Model
     protected $fillable = [
         'brand_id',
         'product_id',
+        'external_id',
         'Agent',
         'Created',
         'OrderDate',
@@ -50,9 +51,6 @@ final class Order extends Model
 
     protected function casts(): array
     {
-        return [
-            'Created' => 'timestamp',
-            'OrderDate' => 'date',
-        ];
+        return [];
     }
 }

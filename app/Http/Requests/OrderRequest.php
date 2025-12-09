@@ -14,6 +14,7 @@ final class OrderRequest extends FormRequest
         return [
             'brand_id' => ['nullable', 'exists:brands'],
             'product_id' => ['nullable', 'exists:products'],
+            'external_id' => ['required', 'numeric'],
             'Agent' => ['required'],
             'Created' => ['required', 'date'],
             'OrderDate' => ['required', 'date'],
