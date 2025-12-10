@@ -10,11 +10,9 @@ use App\Http\Resources\ProductResource;
 use App\Models\Brand;
 use App\Services\SecureSellerService;
 use Exception;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Str;
 
 final class BrandController extends Controller
@@ -29,30 +27,29 @@ final class BrandController extends Controller
     {
         $this->authorize('viewAny', Brand::class);
 
-        $query = Brand::query()
-            ->withCount('products')
-            ->withSum(['expenses as expenses_yesterday' => fn (Builder $q) => $q->whereDate('ExpenseDate', Date::yesterday())], 'Expense')
-            ->withSum(['expenses as expenses_week' => fn (Builder $q) => $q->whereBetween('ExpenseDate', [Date::today()->subDays(7), Date::today()])], 'Expense')
-            ->withSum(['expenses as expenses_month' => fn (Builder $q) => $q->whereMonth('ExpenseDate', Date::now()->month)->whereYear('ExpenseDate', Date::now()->year)], 'Expense');
+        $brands = Brand::query()
+            ->withCount(['products', 'expenses', 'orders'])
+            ->latest()
+            ->paginate(15);
 
-        return BrandResource::collection($query->paginate());
+        return BrandResource::collection($brands);
     }
 
     public function store(BrandRequest $request): BrandResource
     {
         $this->authorize('create', Brand::class);
 
-        return new BrandResource(Brand::query()->create($request->validated()));
+        $brand = Brand::query()->create($request->validated());
+        $brand->loadCount(['products', 'expenses', 'orders']);
+
+        return new BrandResource($brand);
     }
 
     public function show(Brand $brand): BrandResource
     {
         $this->authorize('view', $brand);
 
-        $brand->loadCount('products')
-            ->loadSum(['expenses as expenses_yesterday' => fn (Builder $q) => $q->whereDate('ExpenseDate', Date::yesterday())], 'Expense')
-            ->loadSum(['expenses as expenses_week' => fn (Builder $q) => $q->whereBetween('ExpenseDate', [Date::today()->subDays(7), Date::today()])], 'Expense')
-            ->loadSum(['expenses as expenses_month' => fn (Builder $q) => $q->whereMonth('ExpenseDate', Date::now()->month)->whereYear('ExpenseDate', Date::now()->year)], 'Expense');
+        $brand->loadCount(['products', 'expenses', 'orders']);
 
         return new BrandResource($brand);
     }
@@ -150,9 +147,13 @@ final class BrandController extends Controller
     {
         $this->authorize('view', $brand);
 
-        return ProductResource::collection(
-            $brand->products()->paginate()
-        );
+        $products = $brand->products()
+            ->withCount(['expenses', 'orders'])
+            ->with('brand')
+            ->latest()
+            ->paginate(15);
+
+        return ProductResource::collection($products);
     }
 
     public function destroy(Brand $brand): JsonResponse

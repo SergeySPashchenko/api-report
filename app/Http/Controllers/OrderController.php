@@ -31,19 +31,29 @@ final class OrderController extends Controller
     {
         $this->authorize('viewAny', Order::class);
 
-        return OrderResource::collection(Order::all());
+        $orders = Order::query()
+            ->with(['brand', 'product', 'customer', 'unknownCustomer', 'billingAddress', 'shippingAddress'])
+            ->latest()
+            ->paginate(15);
+
+        return OrderResource::collection($orders);
     }
 
     public function store(OrderRequest $request): OrderResource
     {
         $this->authorize('create', Order::class);
 
-        return new OrderResource(Order::query()->create($request->validated()));
+        $order = Order::query()->create($request->validated());
+        $order->load(['brand', 'product', 'customer', 'unknownCustomer', 'billingAddress', 'shippingAddress']);
+
+        return new OrderResource($order);
     }
 
     public function show(Order $order): OrderResource
     {
         $this->authorize('view', $order);
+
+        $order->load(['brand', 'product', 'customer', 'unknownCustomer', 'billingAddress', 'shippingAddress']);
 
         return new OrderResource($order);
     }
@@ -168,7 +178,9 @@ final class OrderController extends Controller
                     ->first();
 
                 // Handle customer (email or unknown)
+                /** @var string|null $customerId */
                 $customerId = null;
+                /** @var string|null $unknownCustomerId */
                 $unknownCustomerId = null;
 
                 if (! empty($data['Email'])) {
@@ -178,6 +190,7 @@ final class OrderController extends Controller
                         $data['Name'] ?: null,
                         $data['Phone'] ?: null
                     );
+                    assert($customer instanceof Customer);
                     $customerId = $customer->id;
                 } else {
                     // Unknown customer (no email)
@@ -187,6 +200,7 @@ final class OrderController extends Controller
                         $data['Zip'] ?: null,
                         $data['Country'] ?: null
                     );
+                    assert($unknownCustomer instanceof UnknownCustomer);
                     $unknownCustomerId = $unknownCustomer->id;
                 }
 

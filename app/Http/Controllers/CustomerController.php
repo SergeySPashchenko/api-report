@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CustomerRequest;
+use App\Http\Resources\AddressResource;
 use App\Http\Resources\CustomerResource;
+use App\Http\Resources\OrderResource;
 use App\Models\Customer;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
@@ -51,5 +53,25 @@ final class CustomerController extends Controller
         $customer->delete();
 
         return response()->json(['message' => 'Customer deleted successfully']);
+    }
+
+    /**
+     * Get all orders for a customer
+     */
+    public function customerOrders(Customer $customer): AnonymousResourceCollection
+    {
+        $orders = $customer->orders()->with(['product', 'brand'])->latest()->paginate(15);
+
+        return OrderResource::collection($orders);
+    }
+
+    /**
+     * Get all addresses for a customer
+     */
+    public function customerAddresses(Customer $customer): AnonymousResourceCollection
+    {
+        $addresses = $customer->addresses()->latest()->paginate(15);
+
+        return AddressResource::collection($addresses);
     }
 }

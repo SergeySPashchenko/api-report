@@ -11,11 +11,9 @@ use App\Models\Brand;
 use App\Models\Product;
 use App\Services\SecureSellerService;
 use Exception;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Str;
 
 final class ProductController extends Controller
@@ -31,12 +29,11 @@ final class ProductController extends Controller
         $this->authorize('viewAny', Product::class);
 
         $query = Product::query()
+            ->withCount(['expenses', 'orders'])
             ->with('brand')
-            ->withSum(['expenses as expenses_yesterday' => fn (Builder $q) => $q->whereDate('ExpenseDate', Date::yesterday())], 'Expense')
-            ->withSum(['expenses as expenses_week' => fn (Builder $q) => $q->whereBetween('ExpenseDate', [Date::today()->subDays(7), Date::today()])], 'Expense')
-            ->withSum(['expenses as expenses_month' => fn (Builder $q) => $q->whereMonth('ExpenseDate', Date::now()->month)->whereYear('ExpenseDate', Date::now()->year)], 'Expense');
+            ->latest();
 
-        return ProductResource::collection($query->paginate());
+        return ProductResource::collection($query->paginate(15));
     }
 
     public function store(ProductRequest $request): ProductResource
@@ -56,10 +53,9 @@ final class ProductController extends Controller
     public function show(Product $product): ProductResource
     {
         $this->authorize('view', $product);
+
         $product->load('brand')
-            ->loadSum(['expenses as expenses_yesterday' => fn (Builder $q) => $q->whereDate('ExpenseDate', Date::yesterday())], 'Expense')
-            ->loadSum(['expenses as expenses_week' => fn (Builder $q) => $q->whereBetween('ExpenseDate', [Date::today()->subDays(7), Date::today()])], 'Expense')
-            ->loadSum(['expenses as expenses_month' => fn (Builder $q) => $q->whereMonth('ExpenseDate', Date::now()->month)->whereYear('ExpenseDate', Date::now()->year)], 'Expense');
+            ->loadCount(['expenses', 'orders']);
 
         return new ProductResource($product);
     }

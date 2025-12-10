@@ -11,25 +11,37 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /** @mixin Product */
 final class ProductResource extends JsonResource
 {
-    /** @return array<string, mixed> */
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(Request $request): array
     {
         return [
             'id' => $this->id,
-            'slug' => $this->slug,
             'ProductID' => $this->ProductID,
+            'brand_id' => $this->brand_id,
+            'slug' => $this->slug,
             'Product' => $this->Product,
             'ProductName' => $this->ProductName,
             'newSystem' => $this->newSystem,
             'Visible' => $this->Visible,
             'flyer' => $this->flyer,
-            'expenses_yesterday' => $this->expenses_yesterday ?? 0,
-            'expenses_week' => $this->expenses_week ?? 0,
-            'expenses_month' => $this->expenses_month ?? 0,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
 
+            // Counts
+            'expenses_count' => $this->whenCounted('expenses'),
+            'orders_count' => $this->whenCounted('orders'),
+
+            // Relationships
             'brand' => new BrandResource($this->whenLoaded('brand')),
+            'expenses' => ExpensesResource::collection($this->whenLoaded('expenses')),
+            'orders' => OrderResource::collection($this->whenLoaded('orders')),
+
+            // Expense summaries (if loaded)
+            'expenses_yesterday' => $this->expenses_yesterday ?? null,
+            'expenses_week' => $this->expenses_week ?? null,
+            'expenses_month' => $this->expenses_month ?? null,
         ];
     }
 }
