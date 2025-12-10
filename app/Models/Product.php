@@ -82,6 +82,12 @@ final class Product extends Model
         return $this->hasMany(Order::class, 'product_id', 'id');
     }
 
+    /** @return HasMany<ProductItem, $this> */
+    public function productItems(): HasMany
+    {
+        return $this->hasMany(ProductItem::class, 'product_id', 'id');
+    }
+
     protected function casts(): array
     {
         return [

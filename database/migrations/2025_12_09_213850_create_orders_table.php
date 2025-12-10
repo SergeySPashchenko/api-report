@@ -16,8 +16,8 @@ return new class extends Migration
             $table->foreignUuid('product_id')->nullable()->constrained('products');
             $table->integer('external_id')->index();
             $table->string('Agent')->index();
-            $table->string('Created'); // Unix timestamp as string
-            $table->string('OrderDate'); // YYYYMMDD format
+            $table->timestamp('Created');
+            $table->date('OrderDate');
             $table->string('OrderNum')->index();
             $table->string('OrderN')->index();
             $table->float('ProductTotal');

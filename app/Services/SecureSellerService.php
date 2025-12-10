@@ -111,6 +111,19 @@ final class SecureSellerService
         return $data;
     }
 
+    /** @return array<int, array<string, mixed>>
+     * @throws Exception
+     */
+    public function getProductItems(): array
+    {
+        $response = $this->makeRequest('getProductItems');
+
+        /** @var array<int, array<string, mixed>> */
+        $data = $response['data'] ?? [];
+
+        return $data;
+    }
+
     /**
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>

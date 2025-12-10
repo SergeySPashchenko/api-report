@@ -10,6 +10,7 @@ use App\Http\Controllers\ExpensesController;
 use App\Http\Controllers\ExpenseTypeController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProductItemController;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -50,6 +51,10 @@ Route::middleware('auth:sanctum')->group(function (): void {
         // Orders
         Route::get('/orders', [OrderController::class, 'getOrders'])->name('orders.list');
         Route::get('/sync-orders', [OrderController::class, 'syncOrders'])->name('orders.sync');
+
+        // ProductsItems
+        Route::get('/products-items/', [ProductItemController::class, 'getProductsItems'])->name('products.list');
+        Route::get('/sync-products-items', [ProductItemController::class, 'syncProducts'])->name('products.sync');
     });
 
     /*
@@ -89,6 +94,15 @@ Route::middleware('auth:sanctum')->group(function (): void {
 
         // Nested: Product Orders
         Route::get('/{product:slug}/orders', [OrderController::class, 'index'])->name('orders');
+    });
+
+    // ProductItems
+    Route::prefix('products-items')->name('products-items.')->group(function (): void {
+        Route::get('/', [ProductItemController::class, 'index'])->name('index');
+        Route::post('/', [ProductItemController::class, 'store'])->name('store');
+        Route::get('/{productItem}', [ProductItemController::class, 'show'])->name('show');
+        Route::put('/{productItem}', [ProductItemController::class, 'update'])->name('update');
+        Route::delete('/{productItem}', [ProductItemController::class, 'destroy'])->name('destroy');
     });
 
     // Expense Types
