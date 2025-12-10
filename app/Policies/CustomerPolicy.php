@@ -11,7 +11,7 @@ final class CustomerPolicy
      */
     public function viewAny(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -19,7 +19,7 @@ final class CustomerPolicy
      */
     public function view(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -27,7 +27,7 @@ final class CustomerPolicy
      */
     public function create(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -35,7 +35,7 @@ final class CustomerPolicy
      */
     public function update(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -43,7 +43,7 @@ final class CustomerPolicy
      */
     public function delete(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -51,7 +51,7 @@ final class CustomerPolicy
      */
     public function restore(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -59,6 +59,6 @@ final class CustomerPolicy
      */
     public function forceDelete(): bool
     {
-        return false;
+        return true;
     }
 }
