@@ -13,8 +13,9 @@ return new class extends Migration
         Schema::create('order_items', function (Blueprint $table): void {
             $table->ulid('id')->primary();
             $table->foreignUuid('order_id')->constrained('orders');
-            $table->integer('idOrderItem')->index();
             $table->foreignUuid('product_item_id')->constrained('product_items');
+            $table->integer('idOrderItem')->index();
+            $table->bigInteger('OrderID');
             $table->string('ItemID');
             $table->float('Price');
             $table->string('Qty');

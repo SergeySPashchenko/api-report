@@ -13,8 +13,9 @@ final class OrderItemsRequest extends FormRequest
     {
         return [
             'order_id' => ['required', 'exists:orders'],
-            'idOrderItem' => ['required', 'integer'],
             'product_item_id' => ['required', 'exists:product_items'],
+            'idOrderItem' => ['required', 'integer'],
+            'OrderID' => ['required', 'integer'],
             'ItemID' => ['required'],
             'Price' => ['required', 'numeric'],
             'Qty' => ['required'],

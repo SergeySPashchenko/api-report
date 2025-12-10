@@ -10,7 +10,9 @@ use App\Http\Resources\OrderResource;
 use App\Models\Address;
 use App\Models\Customer;
 use App\Models\Order;
+use App\Models\OrderItems;
 use App\Models\Product;
+use App\Models\ProductItem;
 use App\Models\UnknownCustomer;
 use App\Services\SecureSellerService;
 use Exception;
@@ -130,12 +132,46 @@ final class OrderController extends Controller
 
             /** @var string $dateStart */
             /** @var string $dateEnd */
-            $orders = $this->secureSellerService->getOrders($dateStart, $dateEnd);
+            $ordersData = $this->secureSellerService->getOrders($dateStart, $dateEnd);
+
+            // Групуємо дані по order ID, оскільки один order може мати кілька items
+            /** @var array<int, array{order: array<string, mixed>, items: array<int, array{idOrderItem: mixed, OrderID: mixed, ItemID: mixed, Price: mixed, Qty: mixed}>}> $groupedOrders */
+            $groupedOrders = [];
+            foreach ($ordersData as $row) {
+                if (! isset($row['id']) || ! is_numeric($row['id'])) {
+                    continue; // Skip invalid data
+                }
+
+                $orderId = (int) $row['id'];
+
+                if (! isset($groupedOrders[$orderId])) {
+                    $groupedOrders[$orderId] = [
+                        'order' => $row,
+                        'items' => [],
+                    ];
+                }
+
+                // Якщо є дані про item, додаємо їх
+                if (! empty($row['idOrderItem'])) {
+                    $groupedOrders[$orderId]['items'][] = [
+                        'idOrderItem' => $row['idOrderItem'],
+                        'OrderID' => $row['OrderID'],
+                        'ItemID' => $row['ItemID'],
+                        'Price' => $row['Price'],
+                        'Qty' => $row['Qty'],
+                    ];
+                }
+            }
 
             $synced = 0;
             $updated = 0;
+            $itemsSynced = 0;
+            $itemsUpdated = 0;
 
-            foreach ($orders as $data) {
+            foreach ($groupedOrders as $groupedData) {
+                $data = $groupedData['order'];
+                $items = $groupedData['items'];
+
                 /**
                  * @var array{
                  *     id: int,
@@ -171,6 +207,7 @@ final class OrderController extends Controller
                  *     ShipPhone: string
                  * } $data
                  */
+
                 // Find relationships
                 $product = Product::query()
                     ->where('ProductID', $data['BrandID'])
@@ -337,7 +374,7 @@ final class OrderController extends Controller
                         $updated++;
                     }
                 } else {
-                    Order::query()->create([
+                    $order = Order::query()->create([
                         'product_id' => $product?->id,
                         'brand_id' => $product?->brand_id,
                         'customer_id' => $customerId,
@@ -362,14 +399,70 @@ final class OrderController extends Controller
                     ]);
                     $synced++;
                 }
+
+                // Синхронізуємо order items
+                foreach ($items as $itemData) {
+                    // Знаходимо ProductItem по ItemID
+                    $productItem = ProductItem::query()
+                        ->where('ItemID', $itemData['ItemID'])
+                        ->withoutGlobalScope('user_access')
+                        ->first();
+
+                    // Шукаємо існуючий OrderItem по idOrderItem
+                    $orderItem = OrderItems::withTrashed()
+                        ->where('idOrderItem', $itemData['idOrderItem'])
+                        ->first();
+
+                    if ($orderItem) {
+                        $wasItemRestored = false;
+
+                        if ($orderItem->trashed()) {
+                            $orderItem->restore();
+                            $wasItemRestored = true;
+                        }
+
+                        $orderItem->fill([
+                            'order_id' => $order->id,
+                            'product_item_id' => $productItem?->id,
+                            'ItemID' => $itemData['ItemID'],
+                            'OrderID' => $itemData['OrderID'],
+                            'Price' => $itemData['Price'],
+                            'Qty' => $itemData['Qty'],
+                        ]);
+
+                        if ($orderItem->isDirty()) {
+                            $orderItem->save();
+                            $itemsUpdated++;
+                        } elseif ($wasItemRestored) {
+                            $itemsUpdated++;
+                        }
+                    } else {
+                        OrderItems::query()->create([
+                            'order_id' => $order->id,
+                            'product_item_id' => $productItem?->id,
+                            'idOrderItem' => $itemData['idOrderItem'],
+                            'OrderID' => $itemData['OrderID'],
+                            'ItemID' => $itemData['ItemID'],
+                            'Price' => $itemData['Price'],
+                            'Qty' => $itemData['Qty'],
+                        ]);
+                        $itemsSynced++;
+                    }
+                }
             }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Orders synced successfully',
-                'created' => $synced,
-                'updated' => $updated,
-                'total' => count($orders),
+                'message' => 'Orders and items synced successfully',
+                'orders' => [
+                    'created' => $synced,
+                    'updated' => $updated,
+                    'total' => count($groupedOrders),
+                ],
+                'items' => [
+                    'created' => $itemsSynced,
+                    'updated' => $itemsUpdated,
+                ],
             ]);
         } catch (Exception $exception) {
             return response()->json([

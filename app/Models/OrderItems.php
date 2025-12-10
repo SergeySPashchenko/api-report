@@ -21,8 +21,9 @@ final class OrderItems extends Model
 
     protected $fillable = [
         'order_id',
-        'idOrderItem',
         'product_item_id',
+        'idOrderItem',
+        'OrderID',
         'ItemID',
         'Price',
         'Qty',

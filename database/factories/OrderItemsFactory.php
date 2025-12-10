@@ -21,6 +21,7 @@ final class OrderItemsFactory extends Factory
     {
         return [
             'idOrderItem' => $this->faker->randomNumber(),
+            'OrderID' => $this->faker->randomNumber(),
             'ItemID' => $this->faker->word(),
             'Price' => $this->faker->randomFloat(),
             'Qty' => $this->faker->word(),
