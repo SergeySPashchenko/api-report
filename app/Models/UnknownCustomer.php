@@ -38,7 +38,7 @@ final class UnknownCustomer extends Model
     /**
      * Find or create unknown customer by address hash
      */
-    public static function findOrCreateByAddressHash(string $city, ?string $state, ?string $zip, ?string $country): self
+    public static function findOrCreateByAddressHash(string $city, ?string $state, ?string $zip, ?string $country): Model
     {
         $hash = self::generateAddressHash($city, $state, $zip, $country);
 

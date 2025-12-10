@@ -28,7 +28,7 @@ final class Customer extends Model
     /**
      * Find or create customer by email
      */
-    public static function findOrCreateByEmail(string $email, ?string $name = null, ?string $phone = null): self
+    public static function findOrCreateByEmail(string $email, ?string $name = null, ?string $phone = null): Model
     {
         return self::query()->firstOrCreate(['email' => $email], [
             'name' => $name,
