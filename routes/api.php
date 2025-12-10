@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\AddressController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ExpensesController;
 use App\Http\Controllers\ExpenseTypeController;
 use App\Http\Controllers\OrderController;
@@ -93,4 +95,6 @@ Route::middleware('auth:sanctum')->group(function (): void {
         Route::delete('/{expense:slug}', [ExpensesController::class, 'destroy'])
             ->name('expenses.destroy');
     });
+    Route::apiResource('customers', CustomerController::class);
+    Route::apiResource('addresses', AddressController::class);
 });

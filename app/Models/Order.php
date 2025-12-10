@@ -22,6 +22,11 @@ final class Order extends Model
     protected $fillable = [
         'brand_id',
         'product_id',
+        'customer_id',
+        'unknown_customer_id',
+        'billing_address_id',
+        'shipping_address_id',
+        'status',
         'external_id',
         'Agent',
         'Created',
@@ -49,8 +54,35 @@ final class Order extends Model
         return $this->belongsTo(Product::class, 'product_id', 'id');
     }
 
+    /** @return BelongsTo<Customer, $this> */
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
+    /** @return BelongsTo<UnknownCustomer, $this> */
+    public function unknownCustomer(): BelongsTo
+    {
+        return $this->belongsTo(UnknownCustomer::class);
+    }
+
+    /** @return BelongsTo<Address, $this> */
+    public function billingAddress(): BelongsTo
+    {
+        return $this->belongsTo(Address::class, 'billing_address_id');
+    }
+
+    /** @return BelongsTo<Address, $this> */
+    public function shippingAddress(): BelongsTo
+    {
+        return $this->belongsTo(Address::class, 'shipping_address_id');
+    }
+
     protected function casts(): array
     {
-        return [];
+        return [
+            'Created' => 'timestamp',
+            'OrderDate' => 'date',
+        ];
     }
 }
